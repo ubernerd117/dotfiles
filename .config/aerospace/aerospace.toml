@@ -1,0 +1,131 @@
+# AeroSpace — i3/Hyprland-style tiling window manager for macOS
+# Docs: https://nikitabobko.github.io/AeroSpace/guide
+
+# Run AeroSpace at login
+start-at-login = true
+
+# Normalize the tree so it stays predictable
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# Default layout
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+# Keep the mouse with the focused window across monitors
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# Gaps between windows and screen edges
+[gaps]
+inner.horizontal = 8
+inner.vertical = 8
+outer.left = 8
+outer.bottom = 8
+outer.top = 8
+outer.right = 8
+
+# Main mode — the alt (⌥) key is the modifier, like a tiling WM "$mod"
+[mode.main.binding]
+
+# Launch the terminal — '-n' forces a new window even when Alacritty is already running.
+alt-enter = 'exec-and-forget open -na Alacritty'
+
+# Launch the browser — mirrors Omarchy's SUPER+SHIFT+B browser key (Super -> alt here).
+# Opens Zen instead of the Omarchy default. '-n' forces a new window even when Zen is
+# already running. Edit the app name to use any browser,
+# e.g. 'exec-and-forget open -na Safari' or '... open -na "Google Chrome"'.
+# The brief 'sleep' lets Shift release first — Firefox-based browsers (Zen) open in
+# Troubleshoot Mode if Shift is still held down when they start up.
+alt-shift-z = 'exec-and-forget sleep 0.3; open -na safari'
+alt-shift-m = 'exec-and-forget open -na Mail'
+alt-shift-b = 'exec-and-forget open -na Beeper\ Desktop'
+alt-shift-c = 'exec-and-forget open -na Calendar'
+
+
+# Toggle between tiling and accordion layouts
+alt-slash = 'layout tiles horizontal vertical'
+alt-comma = 'layout accordion horizontal vertical'
+
+# Move focus
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# Move the focused window
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# Join the focused window with a neighbor into one container (a shared tile).
+# Follow with alt-comma to stack them in accordion, or alt-slash to split them.
+alt-ctrl-h = 'join-with left'
+alt-ctrl-j = 'join-with down'
+alt-ctrl-k = 'join-with up'
+alt-ctrl-l = 'join-with right'
+
+# Resize the focused window
+alt-minus = 'resize smart -50'
+alt-equal = 'resize smart +50'
+
+# Fullscreen the focused window
+alt-f = 'fullscreen'
+
+# Toggle floating / tiling for the focused window
+alt-shift-space = 'layout floating tiling'
+
+# Switch to workspace
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+# Move the focused window to a workspace
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+
+# Jump back to the previous workspace
+alt-tab = 'workspace-back-and-forth'
+
+# Move the current workspace to the next monitor
+alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+# Enter service mode for config reload and tree maintenance
+alt-shift-semicolon = 'mode service'
+
+[mode.service.binding]
+esc = ['reload-config', 'mode main']
+r = ['flatten-workspace-tree', 'mode main'] # reset the layout
+f = ['layout floating tiling', 'mode main'] # toggle floating
+backspace = ['close-all-windows-but-current', 'mode main']
+alt-shift-h = ['join-with left', 'mode main']
+alt-shift-j = ['join-with down', 'mode main']
+alt-shift-k = ['join-with up', 'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# Pin number-key workspaces to monitors in groups of three.
+# With three monitors this gives 1-3 / 4-6 / 7-9 from left to right.
+[workspace-to-monitor-force-assignment]
+1 = 1
+2 = 1
+3 = 1
+4 = 2
+5 = 2
+6 = 2
+7 = 3
+8 = 3
+9 = 3
