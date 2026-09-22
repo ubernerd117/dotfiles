@@ -1,0 +1,5 @@
+/.config/gcloud/
+/.config/gh/hosts.yml
+/.config/herdr/*.log
+/.config/herdr/session.json
+.DS_Store

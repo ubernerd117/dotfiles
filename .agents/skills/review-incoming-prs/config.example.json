@@ -1,0 +1,77 @@
+{
+  "_comment": "REFERENCE ONLY — you normally do NOT hand-edit this. The review-incoming-prs skill writes ~/.claude/review-incoming-prs.config.json for you on first summon of a project (via scripts/config.py), auto-detecting repo/owner/branch and asking only for what it can't detect. This file documents the shape it writes so you can inspect or tweak it later. The _comment / _howto keys are documentation only — the helper ignores them.",
+
+  "_howto_projects": "Each entry under `projects` is one repo. The project is chosen by the repo you summon in: with no argument the skill matches your current repo root to a project's repo.root; an explicit argument (e.g. `/review-incoming-prs example-project`) overrides that. Summon from inside a repo that isn't configured yet and the skill runs first-run setup and adds it. Slack identity (my_user_id) and state_file are global; any project may override the channel under its own `slack` block.",
+
+  "slack": {
+    "_howto_my_user_id": "Global. Click your avatar/name in Slack → View profile → ⋮ (More) → Copy member ID (starts with U). The id PR-request messages @-mention you with. Set once via: python3 scripts/config.py set slack.my_user_id U…",
+    "my_user_id": "UXXXXXXXXXX",
+    "_howto_channel": "Optional global DEFAULT channel, used by any project that doesn't set its own. Channel id (starts with C): channel header → About tab (bottom), or the last path segment of the channel's copy-link URL.",
+    "channel_id": "CXXXXXXXXXX",
+    "channel_name": "#pr-reviews"
+  },
+
+  "_howto_slack_mcp": "The skill calls slack_read_channel / slack_add_reaction / slack_get_reactions from a Slack MCP server you must connect in this session. Setup: create a Slack app at https://api.slack.com/apps, add scopes channels:history, channels:read, reactions:read, reactions:write (groups:* for private channels), install to the workspace, invite the bot to the channel, configure the MCP with the OAuth token. Reactions/reviews must post AS YOU — if the MCP posts as a bot, use a user token (xoxp-). Store the token in the MCP server's own config/env, NOT here.",
+
+  "_howto_github": "The skill runs `gh` (GitHub CLI), authenticated as you: `gh auth login` once (or set GH_TOKEN), verify with `gh auth status`. Same auth posts reviews/approvals AS YOU and covers all projects. First-run setup uses `gh repo view` to detect owner/name/default branch.",
+
+  "_howto_state_file": "Global. Tracks reviewed PR commit SHAs so a PR isn't re-reviewed until it gets new commits. Keyed by <owner>/<repo>#<pr>, safe to share across projects. Auto-created on first write; defaults to ~/.claude/pr-review-state.json if omitted.",
+  "state_file": "~/.claude/pr-review-state.json",
+
+  "projects": {
+    "example-project": {
+      "_howto": "The key (\"example-project\") is the optional override name (`/review-incoming-prs example-project`); normally the project is chosen automatically by matching your current repo to this block's repo.root. Written by first-run setup; edit by hand only if you must.",
+
+      "repo": {
+        "_howto": "Built for a bare + worktrees layout (also works for normal clones). git_common_dir is `git rev-parse --git-common-dir` (absolute) — the repo's IDENTITY, matched against whichever repo you summon in (bare repo, any worktree, or normal clone all resolve to the same value). worktrees_dir is your normal worktrees directory; review worktrees are created there, named after each PR's head branch (no pr- prefix), KEPT and never auto-pruned so you can inspect them (`git --git-dir=<git_common_dir> worktree remove <worktrees_dir>/<branch>`). owner/name/default_branch come from `gh repo view`. All auto-detected/confirmed on first run.",
+        "git_common_dir": "/absolute/path/to/your/repo/.bare",
+        "worktrees_dir": "/absolute/path/to/your/repo",
+        "owner": "example-org",
+        "name": "example-repo",
+        "default_branch": "main"
+      },
+
+      "plane": {
+        "_howto": "ticket_prefix is the project identifier prefix on this repo's Plane tickets — the part before the number in PROJ-123. The skill extracts <prefix>-<number> from each PR's branch or title to time-track. First-run setup guesses it from recent branch names and confirms. Plane API creds live in ~/.claude/.plane, not here.",
+        "ticket_prefix": "PROJ"
+      },
+
+      "ui_gate": {
+        "_howto": "Globs (relative to repo root) that, when touched, FORBID auto-approval — they need manual UI/UX testing. Keep to true UI components, not routes/pages/hooks/styles. Empty array = no UI gate (clean PRs always auto-approve). First-run setup proposes detected component dirs.",
+        "component_globs": ["client/src/components/**"]
+      },
+
+      "docs_sync": [
+        {
+          "_howto": "One entry per code-area→docs-area pairing. When a PR touches code_glob, the verify agent reads docs_dir (or fallback_docs_dir if docs_dir is absent) and flags stale or missing docs. Empty array = doc-sync disabled. First-run setup proposes detected docs dirs.",
+          "code_glob": "pipeline_agentic/**",
+          "docs_dir": "pipeline_agentic/docs/",
+          "fallback_docs_dir": null
+        },
+        {
+          "code_glob": "client/**",
+          "docs_dir": "client/docs/",
+          "fallback_docs_dir": "docs/"
+        }
+      ]
+    },
+
+    "_example_second_project": {
+      "_howto": "Shape of a second repo with a per-project channel override and disabled ui_gate/docs_sync. You don't write this by hand — summon `/review-incoming-prs <name>` from inside that repo and setup adds it.",
+      "slack": {
+        "channel_id": "C0XXXXXXXXX",
+        "channel_name": "#other-repo-reviews"
+      },
+      "repo": {
+        "git_common_dir": "/absolute/path/to/other/repo/.bare",
+        "worktrees_dir": "/absolute/path/to/other/repo",
+        "owner": "example-org",
+        "name": "other-repo",
+        "default_branch": "main"
+      },
+      "plane": { "ticket_prefix": "OTHER" },
+      "ui_gate": { "component_globs": [] },
+      "docs_sync": []
+    }
+  }
+}
