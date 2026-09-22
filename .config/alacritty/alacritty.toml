@@ -146,6 +146,3 @@ bindings = [
   { key = "End",      mods = "Shift",   action = "ScrollToBottom" },
 ]
 
-[terminal.shell]
-program = "tmux"
-args= ["new-session", "-A", "-s", "main"]
