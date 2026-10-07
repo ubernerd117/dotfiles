@@ -3,5 +3,5 @@
 /.config/herdr/*.log
 /.config/herdr/session.json
 .DS_Store
-/.agents/skills/.system
-/.agents/skills/synced
+.agents/skills/synced
+.agents/skills/.system
